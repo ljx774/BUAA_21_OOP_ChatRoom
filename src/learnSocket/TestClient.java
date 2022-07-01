@@ -1,23 +1,41 @@
 package learnSocket;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class TestClient {
     public static void main(String[] args) {
         try {
-            Socket s = new Socket("127.0.0.1", 8888);
+            Socket s = new Socket("localhost", 8888);
+
             InputStream is = s.getInputStream();
             DataInputStream dis = new DataInputStream(is);
-            System.out.println("服务器端地址: " + s.getInetAddress());
-            System.out.println("服务器端端口: " + s.getPort());
-            System.out.println("接收到的信息为: ");
-            System.out.println(dis.readUTF());
-            System.out.println(dis.readUTF());
+
+            OutputStream os = s.getOutputStream();
+            DataOutputStream dos = new DataOutputStream(os);
+
+            InputStreamReader isr = new InputStreamReader(System.in);
+            BufferedReader br = new BufferedReader(isr);
+            String info;
+
+            while (true) {
+                info = br.readLine();
+                dos.writeUTF(info);
+                if(info.equals("bye"))
+                    break;
+
+                info = dis.readUTF();
+                System.out.println("对方说: " + info);
+                if (info.equals("bye"))
+                    break;
+            }
+
             dis.close();
-            is.close();
+            dos.close();
+            s.close();
+        } catch (SocketException e) {
+            System.out.println("网络连接异常");
         } catch (IOException e) {
             e.printStackTrace();
         }
