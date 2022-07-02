@@ -20,8 +20,8 @@ public class ClientWriter extends Thread{
             while (true) {
                 info = br.readLine();
                 dos.writeUTF(info);
-                if (info.endsWith("bye")) {
-                    System.out.println("下线！");
+                if (info.equals("quit")) {
+                    System.out.println("----------Bye!----------");
                     System.exit(0);
                 }
             }

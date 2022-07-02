@@ -55,6 +55,7 @@ public class ServerWriter extends Thread{
                     tmpDos.sendMessage("系统提示: 登陆成功, 您的昵称为" + tmpDos.name);
                     System.out.println("端口号为" + port + "的用户以账号" + user.uid + "成功登录");
                     System.out.print("ChatRoomShell @Server > ");
+                    addLogin(user);
                     return tmpDos.name;
                 }
                 else {
@@ -119,6 +120,19 @@ public class ServerWriter extends Thread{
                 commandUtils.divide(userInfo, params);
                 users.add(new User(params.get(0), params.get(1), params.get(2)));
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addLogin(User user) {
+        try {
+            FileWriter writer = new FileWriter("src/Login.csv", true);
+            BufferedWriter br = new BufferedWriter(writer);
+            br.newLine();
+            String newLogin = user.uid + ", " + user.password + ", " + user.name;
+            br.write(newLogin);
+            br.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

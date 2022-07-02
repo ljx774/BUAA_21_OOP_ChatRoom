@@ -1,18 +1,24 @@
 package Server;
 
-import Utils.CommandUtils;
-
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 
 public class ServerShell extends Thread{
-    private final CommandUtils commandUtils = new CommandUtils();
     private final BufferedReader commandReader = new BufferedReader(
             new InputStreamReader(System.in));
 
     public ServerShell() {
+        init();
+    }
+
+    private void init() {
         System.out.println("欢迎使用ChatRoomLjx 0.1!");
+        try {
+            FileWriter writer = new FileWriter("src/Login.csv");
+            BufferedWriter br = new BufferedWriter(writer);
+            br.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void run(){

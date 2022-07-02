@@ -16,10 +16,6 @@ public class ClientReader extends Thread{
             while (true) {
                 info = dis.readUTF();
                 System.out.println(info);
-                if (info.endsWith("bye")) {
-                    System.out.println("下线");
-                    System.exit(0);
-                }
             }
         } catch (IOException e) {
             e.printStackTrace();
