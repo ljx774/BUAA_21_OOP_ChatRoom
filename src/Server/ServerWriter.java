@@ -108,6 +108,19 @@ public class ServerWriter extends Thread{
         }
     }
 
+    public void logout(int port) {
+        MyDos tmpDos = null;
+        for (MyDos myDos : doss) {
+            if (myDos.port == port) {
+                tmpDos = myDos;
+            }
+        }
+        assert tmpDos != null;
+        removeLogin(tmpDos.name);
+        tmpDos.name = "unknown";
+        tmpDos.sendMessage("系统提示: 退出登录成功!");
+    }
+
     public void updateUsers (){
         users.clear();
         try {
@@ -133,6 +146,35 @@ public class ServerWriter extends Thread{
             String newLogin = user.uid + ", " + user.password + ", " + user.name;
             br.write(newLogin);
             br.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void removeLogin(String name) {
+        ArrayList<User> tmpLoginList = new ArrayList<>();
+        try {
+            File loginNow = new File("src/Login.csv");
+            BufferedReader userReader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(loginNow), StandardCharsets.UTF_8));
+            String loginInfo;
+            ArrayList<String> params = new ArrayList<>();
+            while ((loginInfo = userReader.readLine()) != null) {
+                if(loginInfo.length() > 3) {
+                    commandUtils.divide(loginInfo, params);
+                    if (!params.get(2).equals(name))
+                        tmpLoginList.add(new User(params.get(0), params.get(1), params.get(2)));
+                }
+            }
+
+            FileWriter writer = new FileWriter("src/Login.csv");
+            BufferedWriter br = new BufferedWriter(writer);
+            for (User user : tmpLoginList) {
+                br.newLine();
+                br.write(user.uid + ", " + user.password + ", " + user.name);
+            }
+            br.flush();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -78,6 +78,16 @@ public class ServerReader extends Thread{
             }
             writer.register(params.get(1), params.get(2), params.get(3), port);
         }
+        //客户端尝试登出
+        else if (params.get(0).equals("logout") && params.size() == 1) {
+            if (this.name.equals("unknown")){
+                message = "您还没有登录，请先登录！";
+                writer.getNewMessage(port, message);
+                return;
+            }
+            this.name = "unknown";
+            writer.logout(port);
+        }
         else {
             message = "未知指令, 请重新输入";
             writer.getNewMessage(port, message);
