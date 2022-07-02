@@ -10,7 +10,7 @@ public class Server {
         shell.start();
         try {
             ServerSocket serverSocket = new ServerSocket(11451);
-            ServerWriter serverWriter = new ServerWriter(shell.users);
+            ServerWriter serverWriter = new ServerWriter();
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("新用户连接成功！端口号：" + socket.getPort());

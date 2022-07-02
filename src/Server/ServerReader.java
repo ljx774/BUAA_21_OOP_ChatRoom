@@ -42,6 +42,7 @@ public class ServerReader extends Thread{
             if(this.name.equals("unknown")) {
                 message = "您还没有登录，请先登录！";
                 writer.getNewMessage(port, message);
+                //writer.getNewMessage(port, "ChatRoomShell @" + name + " > ");
                 return;
             }
             for (int i = 1; i < params.get(0).length(); i++) {
@@ -59,7 +60,28 @@ public class ServerReader extends Thread{
         }
         // 客户端尝试登录
         else if (params.get(0).equals("login")) {
+            if (params.size() != 3) {
+                message = "参数数量错误！请按照“login [uid] [password]”的格式输入";
+                writer.getNewMessage(port, message);
+                //writer.getNewMessage(port, "ChatRoomShell @" + name + " > ");
+                return;
+            }
             this.name = writer.login(params.get(1), params.get(2), port);
+        }
+        // 客户端尝试注册
+        else if (params.get(0).equals("register")) {
+            if (params.size() != 4) {
+                message = "参数数量错误！请按照“register [uid] [password] [name]”的格式输入";
+                writer.getNewMessage(port, message);
+                //writer.getNewMessage(port, "ChatRoomShell @" + name + " > ");
+                return;
+            }
+            writer.register(params.get(1), params.get(2), params.get(3), port);
+        }
+        else {
+            message = "未知指令, 请重新输入";
+            writer.getNewMessage(port, message);
+            //writer.getNewMessage(port, "ChatRoomShell @" + name + " > ");
         }
     }
 }

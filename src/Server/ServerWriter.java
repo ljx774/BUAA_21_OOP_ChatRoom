@@ -1,45 +1,48 @@
 package Server;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import Utils.CommandUtils;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class ServerWriter extends Thread{
-    private ArrayList<MyDOS> doss = new ArrayList<>();
+    private ArrayList<MyDos> doss = new ArrayList<>();
     private String[] toSend = new String[50];
     private ArrayList<User> users = new ArrayList<>();
+    private final CommandUtils commandUtils = new CommandUtils();
 
-    public ServerWriter(ArrayList<User> users) {
-        this.users = users;
+    public ServerWriter() {
+        updateUsers();
     }
 
     public void addDos(DataOutputStream dos, int port) {
-        doss.add(new MyDOS(dos, "unknown", port));
+        doss.add(new MyDos(dos, "unknown", port));
     }
 
     public void getNewMessage(String name, String message){
-        for (MyDOS myDOS : doss) {
-            if (myDOS.name.equals(name)) {
-                myDOS.sendMessage(message);
+        for (MyDos myDos : doss) {
+            if (myDos.name.equals(name)) {
+                myDos.sendMessage(message);
                 return;
             }
         }
     }
 
     public void getNewMessage(int port, String message){
-        for (MyDOS myDOS : doss) {
-            if (myDOS.port == port) {
-                myDOS.sendMessage(message);
+        for (MyDos myDos : doss) {
+            if (myDos.port == port) {
+                myDos.sendMessage(message);
                 return;
             }
         }
     }
 
     public String login(String uid, String passWord, int port){
-        MyDOS tmpDos = null;
-        for (MyDOS myDOS : doss) {
-            if (myDOS.port == port) {
-                tmpDos = myDOS;
+        MyDos tmpDos = null;
+        for (MyDos myDos : doss) {
+            if (myDos.port == port) {
+                tmpDos = myDos;
             }
         }
         assert tmpDos != null;
@@ -65,6 +68,62 @@ public class ServerWriter extends Thread{
         return "unknown";
     }
 
+    public void register(String uid, String password, String name, int port) {
+        MyDos tmpDos = null;
+        for (MyDos myDos : doss) {
+            if (myDos.port == port) {
+                tmpDos = myDos;
+            }
+        }
+        assert tmpDos != null;
+        updateUsers();
+        boolean isExist = false, isSameName = false;
+        for (User user : users) {
+            if (user.uid.equals(uid)) {
+                isExist = true;
+            }
+            if (user.name.equals(name)) {
+                isSameName = true;
+            }
+        }
+        if (isExist) {
+            tmpDos.sendMessage("系统提示: 该账号已存在! 请换一个账号注册!");
+            return;
+        }
+        if (isSameName) {
+            tmpDos.sendMessage("系统提示: 该昵称已存在! 请换一个昵称注册!");
+            return;
+        }
+        try {
+            FileWriter writer = new FileWriter("src/User.csv", true);
+            BufferedWriter br = new BufferedWriter(writer);
+            br.newLine();
+            br.write(uid + ", " + password + ", " + name);
+            br.flush();
+            updateUsers();
+            tmpDos.sendMessage("系统提示: 注册成功, 请登录吧！");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateUsers (){
+        users.clear();
+        try {
+            File userFormat = new File("src/User.csv");
+            BufferedReader userReader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(userFormat), StandardCharsets.UTF_8));
+            String userInfo;
+            ArrayList<String> params = new ArrayList<>();
+            while ((userInfo = userReader.readLine()) != null) {
+                commandUtils.divide(userInfo, params);
+                users.add(new User(params.get(0), params.get(1), params.get(2)));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void run() {
         try {
             while (true) {
@@ -73,26 +132,6 @@ public class ServerWriter extends Thread{
                     toSend[i] = null;
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-class MyDOS {
-    DataOutputStream dos;
-    String name;
-    int port;
-
-    public MyDOS (DataOutputStream dos, String name, int port) {
-        this.dos = dos;
-        this.name = name;
-        this.port = port;
-    }
-
-    public void sendMessage(String message){
-        try {
-            dos.writeUTF(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
