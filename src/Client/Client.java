@@ -7,6 +7,7 @@ public class Client {
     public static void main(String[] args) {
         try {
             Socket socket = new Socket("localhost", 11451);
+            System.out.println("成功连接到服务器: localhost:11451");
 
             InputStream is = socket.getInputStream();
             DataInputStream dis = new DataInputStream(is);

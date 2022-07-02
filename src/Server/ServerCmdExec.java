@@ -11,8 +11,10 @@ public class ServerCmdExec{
     private final ArrayList<User> loginUsers = new ArrayList<>();
     private final ArrayList<String> params = new ArrayList<>();
     private final CommandUtils commandUtils = new CommandUtils();
+    private final ServerWriter serverWriter;
 
-    public ServerCmdExec(){
+    public ServerCmdExec(ServerWriter serverWriter){
+        this.serverWriter = serverWriter;
         updateUsers();
     }
 
@@ -60,7 +62,32 @@ public class ServerCmdExec{
     }
 
     private void call() {
+        int i;
+        String message;
+        updateLogin();
+        ArrayList<String> toSendList = new ArrayList<>();
+        if (params.get(1).equals("@all")) {
+            for (User loginUser : loginUsers) {
+                toSendList.add(loginUser.name);
+            }
+            i = 2;
+        }
+        else {
+            for (i = 1; i < params.size(); i++) {
+                if(params.get(i).startsWith("@")) {
+                    toSendList.add(commandUtils.atCommandDivide(params.get(i)));
+                }
+                else break;
+            }
+        }
+        message = "系统说: ";
+        for (; i < params.size(); i++) {
+            message += " " + params.get(i);
+        }
 
+        for (int j = 0; j < toSendList.size(); j++) {
+            serverWriter.getNewMessage(toSendList.get(j), message);
+        }
     }
 
     public void updateUsers (){

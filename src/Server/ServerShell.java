@@ -5,8 +5,10 @@ import java.io.*;
 public class ServerShell extends Thread{
     private final BufferedReader commandReader = new BufferedReader(
             new InputStreamReader(System.in));
+    private ServerWriter serverWriter;
 
-    public ServerShell() {
+    public ServerShell(ServerWriter serverWriter) {
+        this.serverWriter = serverWriter;
         init();
     }
 
@@ -24,7 +26,7 @@ public class ServerShell extends Thread{
     public void run(){
         try {
             String command;
-            ServerCmdExec executor = new ServerCmdExec();
+            ServerCmdExec executor = new ServerCmdExec(serverWriter);
             while (true) {
                 System.out.print("ChatRoomShell @Server > ");
                 command = commandReader.readLine();

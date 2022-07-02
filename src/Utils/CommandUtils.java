@@ -32,4 +32,15 @@ public class CommandUtils {
         }
         return ret;
     }
+
+    public String atCommandDivide(String command) {
+        String ret = null;
+        for (int i = 1; i < command.length(); i++) {
+            if (i == 1) {
+                ret = "" + command.charAt(i);
+            }
+            else ret += command.charAt(i);
+        }
+        return ret;
+    }
 }
